@@ -74,7 +74,7 @@ router.post(
       let user = await User.findOne({ email });
 
       if (!user) {
-        return res.status(400).json({ email, message: INVALID_CREDS });
+        return res.status(400).json({ message: INVALID_CREDS });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
@@ -83,7 +83,7 @@ router.post(
         return res.status(400).json({ message: INVALID_CREDS });
       }
 
-      res.status(200).json({ message: LOGIN_SUCCESS });
+      res.status(200).json({ email, message: LOGIN_SUCCESS });
     } catch (error) {
       logger.error(error.message);
       res.status(INTERNAL_SERVER_ERROR_CODE).send(INTERNAL_SERVER_ERROR);
