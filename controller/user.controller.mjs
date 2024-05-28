@@ -1,6 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import { CREATED, OK } from "../constants/success-code.mjs";
+import { CREATED } from "../constants/success-code.mjs";
 import User from "../model/user.model.mjs";
 import {
   FIRST_NAME_REQUIRED,
@@ -43,16 +43,18 @@ router.post(
         email,
         password,
       });
-      
+
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(password, salt);
 
       await user.save();
 
-      res.status(CREATED).json({ message: REGISTERED_SUCCESS });
-    } catch (err) {
-      console.log(err);
-      logger.error(err.message);
+      res
+        .status(CREATED)
+        .json({ first_name, last_name, email, message: REGISTERED_SUCCESS });
+    } catch (error) {
+      console.log(error);
+      logger.error(error.message);
       res.status(INTERNAL_SERVER_ERROR_CODE).send(INTERNAL_SERVER_ERROR);
     }
   }
@@ -72,18 +74,18 @@ router.post(
       let user = await User.findOne({ email });
 
       if (!user) {
-        return res.status(400).json({ msg: INVALID_CREDS });
+        return res.status(400).json({ email, message: INVALID_CREDS });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
 
       if (!isMatch) {
-        return res.status(400).json({ msg: INVALID_CREDS });
+        return res.status(400).json({ message: INVALID_CREDS });
       }
 
-      res.status(200).json({ msg: LOGIN_SUCCESS });
-    } catch (err) {
-      logger.error(err.message);
+      res.status(200).json({ message: LOGIN_SUCCESS });
+    } catch (error) {
+      logger.error(error.message);
       res.status(INTERNAL_SERVER_ERROR_CODE).send(INTERNAL_SERVER_ERROR);
     }
   }
